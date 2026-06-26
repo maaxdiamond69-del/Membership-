@@ -129,6 +129,22 @@ app.post("/api/connect", async (req, res) => {
   res.json(result);
 });
 
-app.listen(3000, () => {
-  console.log("Website running on http://localhost:3000");
+app.post("/api/connect", async (req, res) => {
+  const { link } = req.body;
+
+  if (!link || (!link.includes("account_id=") && !link.includes("kiosgamer"))) {
+    return res.json({
+      success: false,
+      message: "❌ Please enter valid kiosgamer link."
+    });
+  }
+
+  const result = await processFlow(link);
+  res.json(result);
+});
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
 });
