@@ -1,1 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FF Token Membership</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #050505;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .box {
+      width: 90%;
+      max-width: 430px;
+      background: #111;
+      padding: 25px;
+      border-radius: 18px;
+      box-shadow: 0 0 25px rgba(0,255,120,0.15);
+      text-align: center;
+    }
+
+    h2 {
+      color: #00ff88;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      margin-top: 15px;
+      background: #222;
+      color: white;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #00ff88;
+      color: #000;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .result {
+      margin-top: 20px;
+      background: #181818;
+      padding: 15px;
+      border-radius: 12px;
+      white-space: pre-line;
+      text-align: left;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <h2>FF Account Connect</h2>
+    <p>Paste your kiosgamer link below</p>
+
+    <input id="link" placeholder="Paste kiosgamer link here...">
+
+    <button id="btn" onclick="connect()">Connect</button>
+
+    <div id="result" class="result" style="display:none;"></div>
+  </div>
+
+  <script>
+    async function connect() {
+      const link = document.getElementById("link").value.trim();
+      const btn = document.getElementById("btn");
+      const resultBox = document.getElementById("result");
+
+      if (!link) {
+        resultBox.style.display = "block";
+        resultBox.innerText = "❌ Please paste link first.";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "Processing...";
+      resultBox.style.display = "block";
+      resultBox.innerText = "⏳ Processing...";
+
+      try {
+        const res = await fetch("/api/connect", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ link })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          resultBox.innerText =
+`Connected ✅
+
+👤 Name: ${data.name}
+🆔 UID: ${data.uid}
+🌍 Region: ${data.region}`;
+        } else {
+          resultBox.innerText = data.message;
+        }
+      } catch (e) {
+        resultBox.innerText = "❌ Process failed. Please try again.";
+      }
+
+      btn.disabled = false;
+      btn.innerText = "Connect";
+    }
+  </script>
+</body>
+</html>
